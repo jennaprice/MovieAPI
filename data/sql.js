@@ -42,6 +42,16 @@ db.film.belongsTo(db.language, {
   targetKey: 'language_id'
 });
 
+db.film_category.belongsTo(db.category, {
+  foreignKey: 'category_id',
+  targetKey: 'category_id'
+});
+
+// db.category.hasOne(db.film_category, {
+//   foreignKey: 'category_id',
+//   targetKey: 'category_id'
+// });
+
 db.film_actor.hasMany(db.actor);
 
 db.payment.belongsTo(db.customer);

@@ -24,37 +24,93 @@ async function getAllMovies(req, res) {
 
     for (movie of movies) {
       movie = movie.get({ plain: true });
-      movie = await exportMovie(movie);
+      movie = await exportData(movie);
 
       exportMovies.push(movie);
     }
   } catch (error) {
     console.log(`get all movies error ${error}`);
-    throw {
+    res.json({
       status: 500,
-      message: `request failed`,
-      detail: `internal service error`
-    };
+      message: 'request failed',
+      detail: 'internal server'
+    });
   }
   res.json({
     status: 200,
-    message: 'Success',
-    detail: ' retrieval sucessful',
+    message: 'success',
+    detail: 'retrieval sucessful',
     exportMovies
+  });
+}
+
+async function getMovieDetail(req, res) {
+  console.log('here', req.params.id);
+
+  let exportMovie;
+  try {
+    let movie = await sql.film.findOne({
+      where: { film_id: req.params.id },
+      include: [
+        {
+          model: sql.language,
+          as: 'originalLanguage',
+          attributes: ['name']
+        },
+        {
+          model: sql.language,
+          as: 'language',
+          attributes: ['name']
+        }
+      ]
+    });
+
+    if (_.isNil(movie)) {
+      throw `movie ${req.params.id} is not a valid id`;
+    }
+
+    movie = movie.get({ plain: true });
+
+    let movieCategory = await sql.film_category.findOne({
+      where: { film_id: req.params.id },
+      include: [
+        {
+          model: sql.category,
+          attributes: ['name']
+        }
+      ]
+    });
+
+    movie.category = movieCategory.get({ plain: true }).category.name;
+
+    exportMovie = await exportData(movie);
+    console.log('total', exportMovie);
+  } catch (error) {
+    console.log(`get movie by id error ${error}`);
+    res.json({
+      status: 500,
+      message: 'request failed',
+      detail: 'internal server'
+    });
+  }
+
+  res.json({
+    status: 200,
+    message: 'success',
+    detail: 'retrieval successful',
+    exportMovie
   });
 }
 
 async function getMoviesByTitle(req, res) {
   let exportMovies = [];
   try {
-    console.log('params', req.params);
-
     if (_.isNil(req.params.searchString)) {
-      throw {
+      res.json({
         status: 401,
         message: `no title `,
         detail: `title must be provided as a query parameter`
-      };
+      });
     }
 
     let movies = await sql.film.findAll({
@@ -77,7 +133,7 @@ async function getMoviesByTitle(req, res) {
 
     for (movie of movies) {
       movie = movie.get({ plain: true });
-      movie = await exportMovie(movie);
+      movie = await exportData(movie);
 
       exportMovies.push(movie);
     }
@@ -97,60 +153,29 @@ async function getMoviesByTitle(req, res) {
   });
 }
 
-async function getMoviesByAttribute() {
+async function getMoviesByAttribute(req, res) {
+  let exportMovies = [];
   try {
-    res.json({
-      status: 200,
-      message: 'Success',
-      detail: ' retrieval sucessful',
-      exportData
-    });
+    console.log('query', req);
   } catch (error) {
-    console.log(`get all movies error ${error}`);
-    throw {
+    console.log(`get by attribute ${error}`);
+    res.json({
       status: 500,
       message: `request failed`,
       detail: `internal service error`
-    };
-  }
-}
-
-async function getMovieDetail(req, res) {
-  try {
-    if (_.isNull(req.params.attribute)) {
-      throw {
-        status: 401,
-        message: `missing required attribute`,
-        detail: ` missing attribute paramater for searching`
-      };
-    } else if (!constants.validAttributes.includes(req.params.attribute)) {
-      throw {
-        status: 401,
-        message: ` attribute not valid`,
-        detail: ` attribute paramater for searching must be on of the valid types ${
-          constants.validAttributes
-        }`
-      };
-    }
-
-    res.json({
-      status: 200,
-      message: 'Success',
-      detail: ' retrieval sucessful',
-      exportData
     });
-  } catch (error) {
-    console.log(`get all movies error ${error}`);
-    throw {
-      status: 500,
-      message: `request failed`,
-      detail: `internal service error`
-    };
   }
+  res.json({
+    status: 200,
+    message: 'Success',
+    detail: ' retrieval sucessful',
+    exportMovies
+  });
 }
-async function exportMovie(data) {
-  delete movie.language_id;
-  delete movie.original_language_id;
+
+async function exportData(data) {
+  delete data.language_id;
+  delete data.original_language_id;
   return data;
 }
 module.exports = {
