@@ -18,7 +18,7 @@ Check that it is running: http://localhost:4000/api/ and you should get the mess
   * The user should be able to filter the movies by rating
     `GET /api/movies/attribute?type=:type&:type=:value`
 
-  i.e. /api/movies/attribute?type=rating&rating=PG
+    i.e. /api/movies/attribute?type=rating&rating=PG
 
   - The user should be able to filter the movies by category
     `GET /api/movies/attribute?type=:type&:type=:value`
