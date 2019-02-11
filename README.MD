@@ -11,17 +11,17 @@ Check that it is running: http://localhost:4000/api/ and you should get the mess
 - A list of movies
   `GET /api/movies`
 
-* The user should be able to search the movies by title
-  `GET /api/movies/title/:searchString`
-  :searcString must be valid characters A-z and 0-9
+  - The user should be able to search the movies by title
+    `GET /api/movies/title/:searchString`
+    :searchString must be valid characters A-z and 0-9
 
-- The user should be able to filter the movies by rating
-  `GET /api/movies/attribute?type=:type&:type=:value`
+  * The user should be able to filter the movies by rating
+    `GET /api/movies/attribute?type=:type&:type=:value`
 
   i.e. /api/movies/attribute?type=rating&rating=PG
 
-* The user should be able to filter the movies by category
-  `GET /api/movies/attribute?type=:type&:type=:value`
+  - The user should be able to filter the movies by category
+    `GET /api/movies/attribute?type=:type&:type=:value`
 
   i.e. /api/movies/attribute?type=category&category=Horror
 
