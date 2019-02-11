@@ -23,7 +23,7 @@ Check that it is running: http://localhost:4000/api/ and you should get the mess
   - The user should be able to filter the movies by category
     `GET /api/movies/attribute?type=:type&:type=:value`
 
-  i.e. /api/movies/attribute?type=category&category=Horror
+    i.e. /api/movies/attribute?type=category&category=Horror
 
 - Movie details for each movie
   `GET /api/movie/detail/:film_id`
@@ -31,7 +31,7 @@ Check that it is running: http://localhost:4000/api/ and you should get the mess
 * A list of actors in a movie
   `GET /api/movie/:film_id/actors`
 
-#Project Specifications and Considerations
+# Project Specifications and Considerations
 
 - What design patterns did you use?
 
