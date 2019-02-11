@@ -47,10 +47,19 @@ db.film_category.belongsTo(db.category, {
   targetKey: 'category_id'
 });
 
-// db.category.hasOne(db.film_category, {
-//   foreignKey: 'category_id',
-//   targetKey: 'category_id'
-// });
+db.category.hasMany(db.film_category, {
+  foreignKey: 'category_id',
+  targetKey: 'category_id'
+});
+
+db.film_category.hasOne(db.film, {
+  foreignKey: 'film_id',
+  targetKey: 'film_id'
+});
+db.film.belongsTo(db.film_category, {
+  foreignKey: 'film_id',
+  targetKey: 'film_id'
+});
 
 db.film_actor.hasMany(db.actor);
 

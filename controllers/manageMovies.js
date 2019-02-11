@@ -156,21 +156,119 @@ async function getMoviesByTitle(req, res) {
 async function getMoviesByAttribute(req, res) {
   let exportMovies = [];
   try {
-    console.log('query', req);
+    if (!constants.validAttributes.includes(req.query.type)) {
+      throw {
+        status: 404,
+        message: 'invalid attribute',
+        detail: `not a valid attribute, must be one of these ${
+          constants.validAttributes
+        }`
+      };
+    }
+    console.log(req.query.type, 'query type');
+
+    switch (req.query.type) {
+      case 'category':
+        if (!constants.validCategory.includes(req.query.category)) {
+          throw {
+            status: 404,
+            message: 'invalid category',
+            detail: `not a valid category, must be one of these ${
+              constants.validCategory
+            }`
+          };
+        }
+
+        console.log('here');
+        exportMovies = await getMoviesByCategory(req.query.category);
+
+        break;
+      case 'rating':
+        if (!constants.validRating.includes(req.query.rating)) {
+          throw {
+            status: 404,
+            message: 'invalid rating',
+            detail: `not a valid rating, must be one of these ${
+              constants.validRating
+            }`
+          };
+        }
+        exportMovies = await getMoviesByRating(req.query.rating);
+        break;
+      default:
+        throw {
+          status: 500,
+          message: `request failed`,
+          detail: `searching ${req.query.type} not yet supported`
+        };
+    }
   } catch (error) {
     console.log(`get by attribute ${error}`);
     res.json({
-      status: 500,
-      message: `request failed`,
-      detail: `internal service error`
+      error
     });
   }
   res.json({
     status: 200,
-    message: 'Success',
-    detail: ' retrieval sucessful',
+    message: 'success',
+    detail: 'retrieval sucessful',
     exportMovies
   });
+}
+
+async function getMoviesByCategory(category) {
+  let data = [];
+  try {
+    let categoryName = await sql.category.findOne({
+      where: { name: category }
+    });
+
+    moviesByCategory = await sql.film_category.findAll({
+      where: { category_id: categoryName.category_id },
+      include: [
+        {
+          model: sql.film
+        }
+      ]
+    });
+
+    for (movie of moviesByCategory) {
+      movie = movie.get({ plain: true });
+      delete movie.category_id;
+      movie.category = category;
+      movie = await exportData(movie);
+      data.push(movie);
+    }
+  } catch (error) {
+    throw error;
+  }
+  console.log(data.length);
+
+  return data;
+}
+
+async function getMoviesByRating(rating) {
+  let data = [];
+  try {
+    moviesByRating = await sql.film.findAll({
+      where: { rating: rating }
+    });
+
+    for (movie of moviesByRating) {
+      movie = movie.get({ plain: true });
+      movie = await exportData(movie);
+
+      data.push(movie);
+    }
+  } catch (error) {
+    console.log('getting movies by rating');
+    throw {
+      status: 500,
+      message: `server failed`,
+      detail: `cannot retrieve movies by rating`
+    };
+  }
+  return data;
 }
 
 async function exportData(data) {
