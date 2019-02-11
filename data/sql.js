@@ -61,15 +61,25 @@ db.film.belongsTo(db.film_category, {
   targetKey: 'film_id'
 });
 
-db.film_actor.hasMany(db.actor);
+db.film_actor.hasOne(db.actor, {
+  foreignKey: 'actor_id',
+  targetKey: 'actor_id'
+});
 
-db.payment.belongsTo(db.customer);
-db.customer.hasOne(db.payment);
-db.customer.hasOne(db.staff);
-db.customer.hasOne(db.rental);
+db.actor.belongsTo(db.film_actor, {
+  foreignKey: 'actor_id',
+  targetKey: 'actor_id'
+});
 
-db.rental.belongsTo(db.inventory);
-db.inventory.hasMany(db.rental);
+db.film.hasMany(db.film_actor, {
+  foreignKey: 'film_id',
+  targetKey: 'film_id'
+});
+
+db.film_actor.belongsTo(db.film, {
+  foreignKey: 'film_id',
+  targetKey: 'film_id'
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

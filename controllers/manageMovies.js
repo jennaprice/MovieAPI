@@ -45,8 +45,6 @@ async function getAllMovies(req, res) {
 }
 
 async function getMovieDetail(req, res) {
-  console.log('here', req.params.id);
-
   let exportMovie;
   try {
     let movie = await sql.film.findOne({
@@ -84,7 +82,6 @@ async function getMovieDetail(req, res) {
     movie.category = movieCategory.get({ plain: true }).category.name;
 
     exportMovie = await exportData(movie);
-    console.log('total', exportMovie);
   } catch (error) {
     console.log(`get movie by id error ${error}`);
     res.json({
@@ -165,7 +162,6 @@ async function getMoviesByAttribute(req, res) {
         }`
       };
     }
-    console.log(req.query.type, 'query type');
 
     switch (req.query.type) {
       case 'category':
@@ -179,7 +175,6 @@ async function getMoviesByAttribute(req, res) {
           };
         }
 
-        console.log('here');
         exportMovies = await getMoviesByCategory(req.query.category);
 
         break;
@@ -204,9 +199,7 @@ async function getMoviesByAttribute(req, res) {
     }
   } catch (error) {
     console.log(`get by attribute ${error}`);
-    res.json({
-      error
-    });
+    res.json(error);
   }
   res.json({
     status: 200,
@@ -242,8 +235,6 @@ async function getMoviesByCategory(category) {
   } catch (error) {
     throw error;
   }
-  console.log(data.length);
-
   return data;
 }
 
@@ -261,7 +252,7 @@ async function getMoviesByRating(rating) {
       data.push(movie);
     }
   } catch (error) {
-    console.log('getting movies by rating');
+    console.log(`getting movies by rating ${error}`);
     throw {
       status: 500,
       message: `server failed`,
