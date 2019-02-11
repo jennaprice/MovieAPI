@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res) {
-  res.render('index');
+  res.send('Server is running');
 });
 app.use('/api', routes);
 app.use(function(req, res) {
