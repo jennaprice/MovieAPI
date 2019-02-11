@@ -14,6 +14,6 @@ router.get(
 
 router.get('movies/detail/:id', movieController.getMoviesByAttribute);
 
-router.get('/movies/title', movieController.getMoviesByTitle);
+router.get('/movies/title/:searchString', movieController.getMoviesByTitle);
 
 module.exports = router;

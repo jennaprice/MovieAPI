@@ -1,6 +1,8 @@
 const sql = require('../data/sql');
 const _ = require('lodash');
 const constants = require('../util/constants');
+const Sequilize = require('sequelize');
+const Op = Sequilize.Op;
 
 async function getAllMovies(req, res) {
   let exportMovies = [];
@@ -43,9 +45,11 @@ async function getAllMovies(req, res) {
 }
 
 async function getMoviesByTitle(req, res) {
-  let exportMovie;
+  let exportMovies = [];
   try {
-    if (_.isNil(req.query.params)) {
+    console.log('params', req.params);
+
+    if (_.isNil(req.params.searchString)) {
       throw {
         status: 401,
         message: `no title `,
@@ -53,22 +57,43 @@ async function getMoviesByTitle(req, res) {
       };
     }
 
-    let movies = await sql.films.findAll({
-      where: { title: { $like: `%${req.query.param}$` } }
+    let movies = await sql.film.findAll({
+      where: {
+        title: { [Op.like]: `%${req.params.searchString}%` }
+      },
+      include: [
+        {
+          model: sql.language,
+          as: 'originalLanguage',
+          attributes: ['name']
+        },
+        {
+          model: sql.language,
+          as: 'language',
+          attributes: ['name']
+        }
+      ]
     });
+
+    for (movie of movies) {
+      movie = movie.get({ plain: true });
+      movie = await exportMovie(movie);
+
+      exportMovies.push(movie);
+    }
   } catch (error) {
     console.log(`get all movies error ${error}`);
-    throw {
+    res.json({
       status: 500,
       message: `request failed`,
       detail: `internal service error`
-    };
+    });
   }
   res.json({
     status: 200,
     message: 'Success',
-    detail: ' retrieval sucessful',
-    exportMovie
+    detail: 'retrieval sucessful',
+    exportMovies
   });
 }
 
