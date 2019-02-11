@@ -102,6 +102,8 @@ async function getMovieDetail(req, res) {
 async function getMoviesByTitle(req, res) {
   let exportMovies = [];
   try {
+    if (!/[^A-Za-z0-9]/.test(req.params.searchString))
+      throw `${req.params.searchString} can only contain letters and numbers`;
     if (_.isNil(req.params.searchString)) {
       res.json({
         status: 401,
