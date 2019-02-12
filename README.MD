@@ -26,10 +26,10 @@ Check that it is running: http://localhost:4000/api/ and you should get the mess
     i.e. /api/movies/attribute?type=category&category=Horror
 
 - Movie details for each movie
-  `GET /api/movie/detail/:film_id`
+  `GET /api/movies/:film_id`
 
 * A list of actors in a movie
-  `GET /api/movie/:film_id/actors`
+  `GET /api/movies/:film_id/actors`
 
 # Project Specifications and Considerations
 
@@ -47,6 +47,11 @@ When structuring code I try to use obvious naming conventions, predictable patte
 
 - What other considerations and tradeoffs did you make when building the application?
 
-I would say the biggest tradeoffs, are when to use a join and when to preform second query. I know that for small applications like this joins are not as time consuming.
+I would say the biggest tradeoffs, are when to use a join and when to preform second query. I know that for small applications like this joins are not as time consuming. There are some changed to the schema that may have made things easier, category has 1 to 1 realationsip with film, so having a separate table to connect them seemed extraneous.
 
-Also what data to send back to the user, in some cases the joins left data with object with one item in it, where we wouldn't need a whoel object for one attribute.
+Also what data to send back to the user, in some cases the joins left data with object with one item in it, where we wouldn't need a whole object for one attribute. That could be refined before export.
+
+# Notes:
+
+I left the configuration in the repo because this is a quick example, but normally I would set up a configuration file for the database name, username and password, not to be committed. Additionally, I have written simple / basic error messages, probably not with as specific codes (401, 400, 500) as they could for time saving.
+As well as I would normally write a function for more detailed custom error handling that could be sent to the console or a log.

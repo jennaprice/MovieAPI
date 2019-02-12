@@ -28,6 +28,13 @@ async function getAllMovies(req, res) {
 
       exportMovies.push(movie);
     }
+
+    res.json({
+      status: 200,
+      message: 'success',
+      detail: 'retrieval sucessful',
+      exportMovies
+    });
   } catch (error) {
     console.log(`get all movies error ${error}`);
     res.json({
@@ -36,12 +43,6 @@ async function getAllMovies(req, res) {
       detail: 'internal server'
     });
   }
-  res.json({
-    status: 200,
-    message: 'success',
-    detail: 'retrieval sucessful',
-    exportMovies
-  });
 }
 
 async function getMovieDetail(req, res) {
@@ -82,21 +83,21 @@ async function getMovieDetail(req, res) {
     movie.category = movieCategory.get({ plain: true }).category.name;
 
     exportMovie = await exportData(movie);
+
+    res.json({
+      status: 200,
+      message: 'success',
+      detail: 'retrieval successful',
+      exportMovie
+    });
   } catch (error) {
     console.log(`get movie by id error ${error}`);
     res.json({
       status: 500,
       message: 'request failed',
-      detail: 'internal server'
+      detail: `internal server: get movie by id error ${error}`
     });
   }
-
-  res.json({
-    status: 200,
-    message: 'success',
-    detail: 'retrieval successful',
-    exportMovie
-  });
 }
 
 async function getMoviesByTitle(req, res) {
@@ -105,11 +106,11 @@ async function getMoviesByTitle(req, res) {
     if (!/[^A-Za-z0-9]/.test(req.params.searchString))
       throw `${req.params.searchString} can only contain letters and numbers`;
     if (_.isNil(req.params.searchString)) {
-      res.json({
+      throw {
         status: 401,
         message: `no title `,
         detail: `title must be provided as a query parameter`
-      });
+      };
     }
 
     let movies = await sql.film.findAll({
@@ -136,20 +137,25 @@ async function getMoviesByTitle(req, res) {
 
       exportMovies.push(movie);
     }
-  } catch (error) {
-    console.log(`get all movies error ${error}`);
     res.json({
-      status: 500,
-      message: `request failed`,
-      detail: `internal service error`
+      status: 200,
+      message: 'Success',
+      detail: 'retrieval sucessful',
+      exportMovies
     });
+  } catch (error) {
+    if (error.hasOwnPropery(status)) {
+      console.log(`getmovies by title ${error.detail}`);
+      res.json(error);
+    } else {
+      console.log(`get movies ${error}`);
+      res.json({
+        status: 500,
+        message: `request failed`,
+        detail: `server error: get all movies error ${error}`
+      });
+    }
   }
-  res.json({
-    status: 200,
-    message: 'Success',
-    detail: 'retrieval sucessful',
-    exportMovies
-  });
 }
 
 async function getMoviesByAttribute(req, res) {
@@ -164,7 +170,7 @@ async function getMoviesByAttribute(req, res) {
         }`
       };
     }
-
+    let result;
     switch (req.query.type) {
       case 'category':
         if (!constants.validCategory.includes(req.query.category)) {
@@ -176,9 +182,7 @@ async function getMoviesByAttribute(req, res) {
             }`
           };
         }
-
-        exportMovies = await getMoviesByCategory(req.query.category);
-
+        result = await getMoviesByCategory(req.query.category);
         break;
       case 'rating':
         if (!constants.validRating.includes(req.query.rating)) {
@@ -190,7 +194,8 @@ async function getMoviesByAttribute(req, res) {
             }`
           };
         }
-        exportMovies = await getMoviesByRating(req.query.rating);
+        result = await getMoviesByRating(req.query.rating);
+
         break;
       default:
         throw {
@@ -199,16 +204,22 @@ async function getMoviesByAttribute(req, res) {
           detail: `searching ${req.query.type} not yet supported`
         };
     }
+
+    if (!Array.isArray(result)) {
+      throw result;
+    }
+
+    exportMovies = result;
+    res.json({
+      status: 200,
+      message: 'success',
+      detail: 'retrieval sucessful',
+      exportMovies
+    });
   } catch (error) {
-    console.log(`get by attribute ${error}`);
+    console.log(`get by attribute ${error.detail}`);
     res.json(error);
   }
-  res.json({
-    status: 200,
-    message: 'success',
-    detail: 'retrieval sucessful',
-    exportMovies
-  });
 }
 
 async function getMoviesByCategory(category) {
@@ -234,10 +245,16 @@ async function getMoviesByCategory(category) {
       movie = await exportData(movie);
       data.push(movie);
     }
+
+    return data;
   } catch (error) {
-    throw error;
+    let err = {
+      status: 500,
+      detail: 'server error',
+      message: ` get movies by category: ${error}`
+    };
+    return err;
   }
-  return data;
 }
 
 async function getMoviesByRating(rating) {
@@ -253,15 +270,16 @@ async function getMoviesByRating(rating) {
 
       data.push(movie);
     }
+    return data;
   } catch (error) {
     console.log(`getting movies by rating ${error}`);
-    throw {
+    let err = {
       status: 500,
       message: `server failed`,
-      detail: `cannot retrieve movies by rating`
+      detail: `cannot retrieve movies by rating: ${error}`
     };
+    return err;
   }
-  return data;
 }
 
 async function exportData(data) {

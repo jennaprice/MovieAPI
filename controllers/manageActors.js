@@ -27,21 +27,22 @@ async function getActorsByFilm(req, res) {
       delete actor.actor_id;
       exportActors.push(actor);
     }
+    res.json({
+      status: 200,
+      message: 'Success',
+      detail: ' retrieval sucessful',
+      exportActors
+    });
   } catch (error) {
     console.log(`all actors for a given film ${req.params.id}: ${error}`);
     res.json({
       status: 500,
       message: 'internal error',
-      detail: 'server error',
-      exportActors
+      detail: `server error all actors for a given film ${
+        req.params.id
+      }: ${error}`
     });
   }
-  res.json({
-    status: 200,
-    message: 'Success',
-    detail: ' retrieval sucessful',
-    exportActors
-  });
 }
 
 module.exports = {
