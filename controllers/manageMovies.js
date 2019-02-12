@@ -103,8 +103,9 @@ async function getMovieDetail(req, res) {
 async function getMoviesByTitle(req, res) {
   let exportMovies = [];
   try {
-    if (!/[^A-Za-z0-9]/.test(req.params.searchString))
-      throw `${req.params.searchString} can only contain letters and numbers`;
+    if (/[!@#$%^&*()_\/.=`~-]/.test(req.params.searchString)) {
+      throw `search string can only contain letters and numbers, no special characters`;
+    }
     if (_.isNil(req.params.searchString)) {
       throw {
         status: 401,
@@ -144,7 +145,7 @@ async function getMoviesByTitle(req, res) {
       exportMovies
     });
   } catch (error) {
-    if (error.hasOwnPropery(status)) {
+    if (typeof error === 'object' && error.hasOwnPropery(status)) {
       console.log(`getmovies by title ${error.detail}`);
       res.json(error);
     } else {
