@@ -1,8 +1,8 @@
 const sql = require('../data/sql');
 const _ = require('lodash');
 const constants = require('../util/constants');
-const Sequilize = require('sequelize');
-const Op = Sequilize.Op;
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 async function getActorsByFilm(req, res) {
   let exportActors = [];
